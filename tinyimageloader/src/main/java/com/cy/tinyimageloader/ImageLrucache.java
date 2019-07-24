@@ -1,7 +1,6 @@
-package com.wenhuaijun.easyimageloader.imageLoader;
+package com.cy.tinyimageloader;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.util.LruCache;
 
 /**图片内存缓存类
@@ -37,7 +36,7 @@ public class ImageLrucache extends LruCache<String,Bitmap>{
     }
     //通过url获取内存缓存
     public Bitmap loadBitmapFromMemCache(String url){
-        final String key =MD5Utils.hashKeyFromUrl(url);
+        final String key = MD5Utils.hashKeyFromUrl(url);
         Bitmap bitmap =getBitmapFromMemCache(key);
         return bitmap;
     }

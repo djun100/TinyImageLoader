@@ -1,15 +1,14 @@
 package com.wenhuaijun.easyimageloader.demo;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.cy.ImgUtils;
 import com.wenhuaijun.easyimageloader.R;
-import com.wenhuaijun.easyimageloader.imageLoader.EasyImageLoader;
-import com.wenhuaijun.easyimageloader.imageLoader.JUtils;
+import com.cy.tinyimageloader.EasyImageLoader;
 
 
 /**
@@ -31,15 +30,19 @@ public class ImageItemViewHolder extends RecyclerView.ViewHolder{
     }
     //绑定数据
     public void setData(NetImage netImage,int layoutType){
+        width=0;
+        height=0;
         //垂直线性布局
         if(layoutType ==Constants.LinearLayoutStyle){
             //加载高清图片并按宽高压缩
-            EasyImageLoader.getInstance(context)
-                    .bindBitmap(netImage.getPic_url_noredirect(), imageView, (int) width, height);
+            ImgUtils.load(netImage.getPic_url_noredirect(), imageView);
+//            EasyImageLoader.getInstance(context)
+//                    .bindBitmap(netImage.getPic_url_noredirect(), imageView, (int) width, height);
         }//错位式布局模式
         else if(layoutType ==Constants.StagedGridLayoutStyle){
             //加载小图片
-            EasyImageLoader.getInstance(context).bindBitmap(netImage.getThumbUrl(), imageView, (int) width, height);
+            ImgUtils.load(netImage.getThumbUrl(), imageView);
+//            EasyImageLoader.getInstance(context).bindBitmap(netImage.getThumbUrl(), imageView, (int) width, height);
         }
 
     }

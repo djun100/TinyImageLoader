@@ -1,4 +1,4 @@
-package com.wenhuaijun.easyimageloader.imageLoader;
+package com.cy.tinyimageloader;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

@@ -1,4 +1,4 @@
-package com.wenhuaijun.easyimageloader.imageLoader;
+package com.wenhuaijun.easyimageloader.demo;
 
 /**
  * Created by Administrator on 2016/4/26 0026.

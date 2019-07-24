@@ -1,4 +1,4 @@
-package com.wenhuaijun.easyimageloader.imageLoader;
+package com.cy.tinyimageloader;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,7 +7,6 @@ import android.util.Base64;
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 /**

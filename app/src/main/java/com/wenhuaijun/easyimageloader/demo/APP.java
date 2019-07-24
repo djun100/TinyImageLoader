@@ -2,8 +2,6 @@ package com.wenhuaijun.easyimageloader.demo;
 
 import android.app.Application;
 
-import com.wenhuaijun.easyimageloader.imageLoader.JUtils;
-
 /**
  * Created by wenhuaijun on 2016/4/26 0026.
  */

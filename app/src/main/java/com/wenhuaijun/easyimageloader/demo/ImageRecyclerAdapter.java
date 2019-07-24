@@ -25,7 +25,7 @@ public class ImageRecyclerAdapter extends RecyclerView.Adapter<ImageItemViewHold
 
     @Override
     public void onBindViewHolder(ImageItemViewHolder holder, int position) {
-        holder.setLayoutParams(data[position],layoutManagerType);
+//        holder.setLayoutParams(data[position],layoutManagerType);
         //如果RecyclerView设置了滑动监听则使用下列注释代码，优化图片加载性能，解决卡顿
         /*if(getItemCount()!=0){
             if (isScrolling) {

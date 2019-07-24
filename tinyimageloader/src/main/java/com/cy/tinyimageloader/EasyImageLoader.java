@@ -1,11 +1,17 @@
-package com.wenhuaijun.easyimageloader.imageLoader;
+package com.cy.tinyimageloader;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageView;
-import com.wenhuaijun.easyimageloader.R;
+
+import com.cy.tinyimageloader.display.BitmapDisplayer;
+import com.cy.tinyimageloader.display.SimpleBitmapDisplayer;
+
+import java.io.File;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -21,6 +27,7 @@ public class EasyImageLoader {
     private static ThreadPoolExecutor THREAD_POOL_EXECUTOR = null;
     //创建一个更新ImageView的UI的Handler
     private static TaskHandler mMainHandler;
+
     public static EasyImageLoader getInstance(Context context){
         if(instance==null){
             synchronized (EasyImageLoader.class){
@@ -29,8 +36,70 @@ public class EasyImageLoader {
                 }
             }
         }
+        instance.clear();
         return instance;
     }
+
+    private String mUrl;
+    private ImageView mImageView;
+    private BitmapCallback mCallback;
+    private int mWidth;
+    private int mHeight;
+    private File mFile;
+    private Drawable mLoadingDrawable;
+    private BitmapDisplayer mDisplayer;
+
+    public void clear(){
+        mUrl=null;
+        mImageView=null;
+        mCallback=null;
+        mWidth=0;
+        mHeight=0;
+        mFile=null;
+        mLoadingDrawable=null;
+        mDisplayer = new SimpleBitmapDisplayer();
+    }
+
+    public EasyImageLoader setUrl(String url) {
+        this.mUrl = url;
+        return this;
+    }
+
+    public EasyImageLoader setImageView(ImageView imageView) {
+        this.mImageView = imageView;
+        return this;
+    }
+
+    public EasyImageLoader setCallback(BitmapCallback callback) {
+        this.mCallback = callback;
+        return this;
+    }
+
+    public EasyImageLoader setWidth(int width) {
+        this.mWidth = width;
+        return this;
+    }
+
+    public EasyImageLoader setHeight(int height) {
+        this.mHeight = height;
+        return this;
+    }
+
+    public EasyImageLoader setFile(File file) {
+        mFile = file;
+        return this;
+    }
+
+    public EasyImageLoader setLoadingDrawable(Drawable loadingDrawable) {
+        mLoadingDrawable = loadingDrawable;
+        return this;
+    }
+
+    public EasyImageLoader setDisplayer(BitmapDisplayer displayer) {
+        mDisplayer = displayer;
+        return this;
+    }
+
     //私有的构造方法，防止在外部实例化该ImageLoader
     private EasyImageLoader(Context context){
         mContext =context.getApplicationContext();
@@ -40,23 +109,31 @@ public class EasyImageLoader {
         mMainHandler = new TaskHandler();
     }
 
-    public void bindBitmap(final String url, final ImageView imageView){
-        bindBitmap(url, imageView, 0, 0);
-    }
-
-    public void bindBitmap(final String uri,final ImageView imageView,final int reqWidth,final int reqHeight){
-        //设置加载loadding图片
-        imageView.setImageResource(R.drawable.ic_loading);
+    public void bindBitmap(){
         //防止加载图片的时候数据错乱
-       // imageView.setTag(TAG_KEY_URI, uri);
-        imageView.setTag(uri);
-        //从内存缓存中获取bitmap
-        Bitmap bitmap = imageLrucache.loadBitmapFromMemCache(uri);
-        if(bitmap!=null){
-            imageView.setImageBitmap(bitmap);
+        // mImageView.setTag(TAG_KEY_URI, uri);
+        mImageView.setTag(mUrl);
+
+        //设置加载loadding图片
+        if (mLoadingDrawable!=null) {
+            mImageView.setImageDrawable(mLoadingDrawable);
+//            mDisplayer.display(((BitmapDrawable) mLoadingDrawable).getBitmap(),mImageView);
+        }
+
+        if (mFile!=null && mFile.isFile()){
+            Bitmap myBitmap = BitmapFactory.decodeFile(mFile.getAbsolutePath());
+//            mImageView.setImageBitmap(myBitmap);
+            mDisplayer.display(myBitmap,mImageView);
             return;
         }
-        LoadBitmapTask loadBitmapTask =new LoadBitmapTask(mContext,mMainHandler,imageView,uri,reqWidth,reqHeight);
+        //从内存缓存中获取bitmap
+        Bitmap bitmap = imageLrucache.loadBitmapFromMemCache(mUrl);
+        if(bitmap!=null){
+//            mImageView.setImageBitmap(bitmap);
+            mDisplayer.display(bitmap,mImageView);
+            return;
+        }
+        LoadBitmapTask loadBitmapTask =new LoadBitmapTask(mContext,mMainHandler,mImageView,mUrl,mWidth,mHeight,mCallback,mDisplayer);
        //使用线程池去执行Runnable对象
         THREAD_POOL_EXECUTOR.execute(loadBitmapTask);
 
@@ -108,5 +185,6 @@ public class EasyImageLoader {
     }
     public interface BitmapCallback{
        public void onResponse(Bitmap bitmap);
+       public void onFail();
     }
 }

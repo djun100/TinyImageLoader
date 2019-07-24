@@ -13,8 +13,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.wenhuaijun.easyimageloader.R;
-import com.wenhuaijun.easyimageloader.imageLoader.JUtils;
-import com.wenhuaijun.easyimageloader.imageLoader.NetRequest;
+import com.cy.tinyimageloader.NetRequest;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             searchWord ="girl";
         }
         //GET网络请求获取数据
-        NetRequest.getRequest(Constants.searchPictureUrl+searchWord, NetImageResult.class, new NetRequest.BeanCallback<NetImageResult>() {
+        HttpUtils.getRequest(Constants.searchPictureUrl+searchWord, NetImageResult.class, new HttpUtils.BeanCallback<NetImageResult>() {
             @Override
             public void onSuccess(NetImageResult response) {
 //                Log.i("TAG","size: +"+response.getItems().length);

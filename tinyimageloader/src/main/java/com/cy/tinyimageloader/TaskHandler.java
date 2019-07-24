@@ -1,11 +1,11 @@
-package com.wenhuaijun.easyimageloader.imageLoader;
+package com.cy.tinyimageloader;
 
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.widget.ImageView;
 
-import com.wenhuaijun.easyimageloader.R;
 
 /**
  * Created by Administrator on 2016/5/1 0001.
@@ -25,13 +25,15 @@ public class TaskHandler extends Handler{
         String uri =(String)imageView.getTag();
         if (uri.equals(result.uri)){
             if(result.bitmap!=null){
-                imageView.setImageBitmap(result.bitmap);
+//                imageView.setImageBitmap(result.bitmap);
+                result.mDisplayer.display(result.bitmap,imageView);
             }else {
-                imageView.setImageResource(R.drawable.ic_error);
+//                imageView.setImageResource(R.drawable.ic_error);
+                Log.e("tag","数据错乱");
             }
 
         }else{
-            JUtils.Log("不是最新数据");
+            Log.i("tag","不是最新数据");
         }
     }
 }

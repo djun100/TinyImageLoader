@@ -1,4 +1,4 @@
-package com.wenhuaijun.easyimageloader.imageLoader;
+package com.cy.tinyimageloader;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.ImageView;
+
+import com.cy.tinyimageloader.display.BitmapDisplayer;
 
 import java.io.IOException;
 
@@ -24,6 +26,7 @@ public class LoadBitmapTask implements Runnable{
     private Handler mMainHandler;
     private ImageView imageView;
     private EasyImageLoader.BitmapCallback callback;
+    private BitmapDisplayer mDisplayer;
 
     //用于Handler处理的构造函数
     public LoadBitmapTask(Context context,Handler handler,ImageView imageview,String uri,int reqWidth,int reqHeight) {
@@ -35,7 +38,7 @@ public class LoadBitmapTask implements Runnable{
         mContext =context.getApplicationContext();
     }
     //用于回调bitmap的重载构造函数
-    public LoadBitmapTask(Context context,EasyImageLoader.BitmapCallback callback,String uri,int reqWidth,int reqHeight) {
+    public LoadBitmapTask(Context context, EasyImageLoader.BitmapCallback callback, String uri, int reqWidth, int reqHeight) {
         this.callback =callback;
         this.uri=uri;
         this.reqHeight =reqHeight;
@@ -43,25 +46,39 @@ public class LoadBitmapTask implements Runnable{
         mContext =context.getApplicationContext();
     }
 
+    public LoadBitmapTask(Context context, Handler handler, ImageView imageview, String uri,
+                          int reqWidth, int reqHeight, EasyImageLoader.BitmapCallback callback, BitmapDisplayer displayer) {
+        this.callback =callback;
+        this.mMainHandler =handler;
+        this.uri=uri;
+        this.reqHeight =reqHeight;
+        this.reqWidth =reqWidth;
+        this.imageView =imageview;
+        mContext =context.getApplicationContext();
+        mDisplayer=displayer;
+    }
+
     @Override
     public void run() {
         //从本地或者网络获取bitmap
-        final Bitmap bitmap =loadBitmap(uri, reqWidth, reqHeight);
-        if(mMainHandler!=null){
-            TaskResult loaderResult = new TaskResult(imageView,uri,bitmap);
-            mMainHandler.obtainMessage(MESSAGE_POST_RESULT,loaderResult).sendToTarget();
+        final Bitmap bitmap = loadBitmap(uri, reqWidth, reqHeight);
+        if (mMainHandler != null) {
+            TaskResult loaderResult = new TaskResult(imageView, uri, bitmap,mDisplayer);
+            mMainHandler.obtainMessage(MESSAGE_POST_RESULT, loaderResult).sendToTarget();
         }
-        if(callback !=null){
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    callback.onResponse(bitmap);
-                }
-            });
-
+        if (callback != null) {
+            if (bitmap != null) {
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onResponse(bitmap);
+                    }
+                });
+            } else {
+                callback.onFail();
+            }
         }
-
     }
 
     /**
@@ -77,7 +94,7 @@ public class LoadBitmapTask implements Runnable{
             //从本地缓存中获取bitmap
             bitmap = EasyImageLoader.getImageDiskLrucache(mContext).loadBitmapFromDiskCache(uri, reqWidth, reqHeight);
             if(bitmap!=null){
-                JUtils.Log("从本地缓存中获取到了bitmap");
+                Log.i(TAG,"从本地缓存中获取到了bitmap");
                 //添加到内存缓存中
                 EasyImageLoader.getImageLrucache().addBitmapToMemoryCache(MD5Utils.hashKeyFromUrl(uri), bitmap);
                 return  bitmap;
@@ -85,7 +102,7 @@ public class LoadBitmapTask implements Runnable{
                 //从网络下载bitmap到本地缓存，并从本地缓存中获取bitmap
                 bitmap =loadBitmapFromHttp(uri,reqWidth,reqHeight);
                 if(bitmap!=null){
-                    JUtils.Log("从网络下载并保存到本地并从中读取bitmap成功");
+                    Log.i(TAG,"从网络下载并保存到本地并从中读取bitmap成功");
                 }
 
             }
@@ -95,7 +112,7 @@ public class LoadBitmapTask implements Runnable{
         }
         if(bitmap==null&&!mIsDiskLruCacheCreated){
             //如果sd卡已满，无法使用本地缓存，则通过网络下载bitmap，一般不会调用这一步
-            bitmap =NetRequest.downloadBitmapFromUrl(uri);
+            bitmap = NetRequest.downloadBitmapFromUrl(uri);
             Log.i(TAG, "sd卡满了，直接从网络获取");
         }
         return bitmap;
